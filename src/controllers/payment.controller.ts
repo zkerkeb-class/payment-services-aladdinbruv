@@ -19,7 +19,7 @@ export const handleCreatePaymentIntent = async (req: Request, res: Response) => 
 export const handleCreateSubscription = async (req: Request, res: Response) => {
   const { email, planType } = req.body;
 
-  if (!email) {
+  if (!email || (typeof email === 'string' && email.trim() === '')) {
     return res.status(400).json({ error: 'Email is required.' });
   }
 
