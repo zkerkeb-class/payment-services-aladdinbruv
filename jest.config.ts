@@ -3,7 +3,16 @@ const config = {
   testEnvironment: 'node',
   testMatch: ['**/__tests__/**/*.test.ts'],
   collectCoverageFrom: ['src/**/*.ts', '!src/server.ts', '!src/config/**'],
-  coverageThreshold: { global: { lines: 50, statements: 50 } },
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov', 'json-summary'],
+  coverageThreshold: { 
+    global: { 
+      lines: 70, 
+      statements: 70, 
+      branches: 70, 
+      functions: 70 
+    } 
+  },
   clearMocks: true,
 };
 
