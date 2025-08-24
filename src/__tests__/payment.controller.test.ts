@@ -1,6 +1,4 @@
 import request from 'supertest';
-import app from '../app';
-import * as paymentService from '../services/payment.service';
 
 const mockCreatePaymentIntent = jest.fn();
 const mockCreateSubscription = jest.fn();
@@ -9,6 +7,9 @@ jest.mock('../services/payment.service', () => ({
   createPaymentIntent: mockCreatePaymentIntent,
   createSubscription: mockCreateSubscription
 }));
+
+import app from '../app';
+import * as paymentService from '../services/payment.service';
 
 describe('PaymentController', () => {
   beforeEach(() => {
@@ -147,6 +148,24 @@ describe('PaymentController', () => {
         expect(res.status).toBe(200);
         expect(mockCreateSubscription).toHaveBeenCalledWith(email);
       }
+    });
+
+    it('handles truthy email that is empty string', async () => {
+      const res = await request(app)
+        .post('/api/payments/create-subscription')
+        .send({ email: '   ' }); // whitespace string
+      
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Email is required.');
+    });
+
+    it('handles whitespace-only email', async () => {
+      const res = await request(app)
+        .post('/api/payments/create-subscription')
+        .send({ email: '   ' });
+      
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('Email is required.');
     });
   });
 });

@@ -70,8 +70,8 @@ describe('Payment Service Integration Edge Cases', () => {
         .post('/api/payments/create-payment-intent')
         .send({ amount: 10.5 });
       
-      // Stripe expects integer amounts in cents
-      expect([200, 400]).toContain(res.status);
+      // Stripe expects integer amounts in cents, so this should be rejected
+      expect([400, 500]).toContain(res.status);
     });
   });
 

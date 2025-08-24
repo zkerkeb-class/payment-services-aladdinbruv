@@ -1,5 +1,4 @@
 // Rely on global Jest types via @types/jest
-import * as service from '../services/payment.service';
 
 const mockPaymentIntents = {
   create: jest.fn()
@@ -21,6 +20,17 @@ jest.mock('stripe', () => {
     constructor() {}
   };
 });
+
+// Mock config
+jest.mock('../config', () => ({
+  __esModule: true,
+  default: {
+    stripeSecretKey: 'sk_test_123',
+    stripePriceId: 'price_123'
+  }
+}));
+
+import * as service from '../services/payment.service';
 
 describe('PaymentService', () => {
   beforeAll(() => {
@@ -126,12 +136,20 @@ describe('PaymentService', () => {
     });
 
     it('handles missing price id configuration', async () => {
-      const originalPriceId = process.env.STRIPE_PRICE_ID;
-      delete process.env.STRIPE_PRICE_ID;
+      // Mock config without price ID
+      jest.doMock('../config', () => ({
+        __esModule: true,
+        default: {
+          stripeSecretKey: 'sk_test_123',
+          stripePriceId: undefined
+        }
+      }));
 
-      await expect(service.createSubscription('test@example.com')).rejects.toThrow('Stripe Price ID is not configured.');
-
-      process.env.STRIPE_PRICE_ID = originalPriceId;
+      // Re-import service to get new config
+      jest.resetModules();
+      const serviceWithoutPriceId = require('../services/payment.service');
+      
+      await expect(serviceWithoutPriceId.createSubscription('test@example.com')).rejects.toThrow('Stripe Price ID is not configured.');
     });
 
     it('handles malformed subscription response', async () => {
